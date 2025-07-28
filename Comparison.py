@@ -5,6 +5,7 @@ import datetime as dt
 import seaborn as sns
 import yfinance as yf
 import math as m
+import scipy.stats as st
 
 
 def get_jumps(log_changes):
@@ -110,11 +111,13 @@ print("Statistics for GBM:")
 print(f"Expected: {round(expected,2)} Deviation: {round(spread,2)}")
 print(f"Median: {round(np.median(results),2)} ; Q1: {round(np.percentile(results,25),2)}  ; Q3 {round(np.percentile(results,75),2)} ; IQR: {round(np.percentile(results,75) - np.percentile(results,25),2)}")
 print(f"90% Confidence Interval for Outcome: [{round(np.percentile(results,5),2)},{round(np.percentile(results,95),2)}]")
+print(f"Kurtosis: {st.kurtosis(expected)}")
 
 print("\nStatistics for Jump Diffusion")
 print(f"Expected: {round(jump_expected,2)} Deviation: {round(jump_spread,2)}")
 print(f"Median: {round(np.median(jump_results),2)} ; Q1: {round(np.percentile(jump_results,25),2)}  ; Q3 {round(np.percentile(jump_results,75),2)} ; IQR: {round(np.percentile(jump_results,75) - np.percentile(jump_results,25),2)}")
 print(f"90% Confidence Interval for Outcome: [{round(np.percentile(jump_results,5),2)},{round(np.percentile(jump_results,95),2)}]")
+print(f"Kurtosis: {st.kurtosis(jump_expected)}")
 
 df = pd.concat([pd.DataFrame({"Prices" : results, "Type": ['GBM' for _ in range(len(results))]}), pd.DataFrame({"Prices" : jump_results, "Type": ['Jump' for _ in range(len(results))]})])
 bxplt = sns.boxplot(data = df , x = 'Prices', y = 'Type', hue = 'Type', palette = ['b','orange'],legend = False)
