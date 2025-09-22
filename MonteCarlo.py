@@ -158,7 +158,7 @@ spread = np.std(results, ddof=1) #1/(n-1) sum(from i = 1 to n) (xi - Xbar)^2. wh
 clt_quant = 1.76
 
 #MLE for mu is (1/n)sum(ln(xi))
-#MLE for mu is (1/n)sum((ln(xi)-mu)^2)
+#MLE for sigma is (1/n)sum((ln(xi)-mu)^2)
 #MLE's are asymptocilly consistent and fit Cramer Rao Lower Bound
 mle_mu = np.mean(np.log(results))
 mle_sigma = np.std(np.log(results)) 

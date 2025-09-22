@@ -22,7 +22,7 @@ def get_data(tickers : list, days = total):
         data = stock.history(start = date_start)
         data = data.drop(columns=['Volume','Dividends','Stock Splits','Open','High','Low']) 
         data["Percent Change"] = data["Close"].pct_change() 
-        data["Log Change"] = np.log(data['Percent Change'] + 1) #normal dist
+        data["Log Change"] = np.log(data['Percent Change'] + 1)
         end[ticker] = data
         closes[ticker] = data['Close'][-1]
     return end, closes
@@ -44,11 +44,28 @@ def GBM(data, num = 10000, days = 252, window = total):
         end[i] = end[i-1] * z_updated[i-1] #Multiplying lognormal by lognormal produces lognormal
     return end[-1]
 
-def Port_GBM(data: dict, num = 10000, days = 252, window = total):
-    results = dict()
-    for key in data:
-        results[key] = GBM(data[key],num, days, window)
-    return results
+def Port_GBM(data: dict, weights: np.ndarray, num = 10000, days = 252, intiial_value = 1000):
+    percent_changes_df = pd.DataFrame(index=data[list(data.keys())[0]].index)
+    for ticker in data:
+        percent_changes_df[ticker] = data[ticker]['Percent Change']
+    
+    means = percent_changes_df.mean()
+    covMatrix = percent_changes_df.cov()
+    cholesky = np.linalg.cholesky(covMatrix)
+    
+    meansMatrix = np.full(shape=(days,len(weights)),fill_value=means)
+    meansMatrix = meansMatrix.T
+
+    end = np.full(shape=(days + 1, num), fill_value= 0.0)
+    end[0] = intiial_value
+
+    for i in range(num):
+        normal = np.random.normal(size = (days , len(weights)))
+        returns = meansMatrix + np.inner(cholesky,normal) #inner product is inner product of each row cholesky to each row of normal is equal to cholesky @ normal.T
+        end[1:,i] = np.cumprod(np.inner(weights, returns.T) + 1) * intiial_value
+
+    return pd.DataFrame(end)
+   
 
 def Graphing_results(results:dict):
     for ticker in results:
@@ -58,18 +75,13 @@ def Graphing_results(results:dict):
         plt.show()
 
 def df_log_changes(data: dict):
-    skip = list(data.keys())[0]
-    end = pd.DataFrame(index=data[skip].index)
-    end[skip] = data[skip]['Log Change']
+    end = pd.DataFrame(index=data[list(data.keys())[0]].index)
     for ticker in data:
-        if ticker != skip:
-            end[ticker] = data[ticker]['Log Change']
-        else:
-            continue
+        end[ticker] = data[ticker]['Log Change']
     return end
 
 def avg_returns(log_changes: pd.DataFrame):
-    '''Gives YEARLY historical expected returns. Gives by daily expected * 252'''
+    '''Gives YEARLY historical expected returns. Given by daily expected * 252'''
     end = dict()
     for ticker in log_changes.columns.tolist():
         end[ticker] = np.mean(log_changes[ticker]) * 252
@@ -116,15 +128,16 @@ def max_min_sharpe(weights, expected, vol, r = 4.11/100):
 def sum_one(weights):
     return np.sum(weights) - 1
 
-port = ['MS','MSFT','GOOG','AMZN']
+port = ['MS','MSFT','GOOG']
 data, closes = get_data(port)
 log_changes = df_log_changes(data)
-results = Port_GBM(data)
+#results = Port_GBM(data)
 covariance = log_changes.cov()
 year_cov = covariance * 252
 cholesky_decom = np.linalg.cholesky(year_cov)
 year_expected = avg_returns(log_changes)
 year_expected_array = [year_expected[ticker] for ticker in year_expected]
+dailey_expected = [i/252 for i in year_expected_array]
 weights = random_weights(len(port))
 
 
@@ -154,3 +167,16 @@ for i in range(len(port)):
     print(f'{port[i]}: {round(100 * best.x[i],2)}')
 print(f'with a ratio of {-Sharpe_ratio_negative(best.x,year_expected_array,year_cov)}')
 print('\n')
+
+port_sim = Port_GBM(data,best.x)
+
+port_sim.plot(legend=False)
+plt.title("Future Price")
+plt.xlabel("Days")
+plt.show()
+
+
+sns.histplot(np.array(np.array(port_sim.iloc[-1])), kde= True, bins='auto', stat='density')
+plt.title("Results")
+plt.xlabel("Price")
+plt.show()
