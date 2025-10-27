@@ -9,7 +9,9 @@ The techniques and subjects included are:
 7) Portfolio Optimization using Sharpe Ratio
 
 How to run: 
-Download the jupyter notebooks or just run the individual python files. 
+1) Download the jupyter notebooks or python files.
+2) Run.
+
 
 Ways to improve:
 1) Model with Stochastic Volitility
