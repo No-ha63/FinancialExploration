@@ -8,9 +8,10 @@ The techniques and subjects included are:
 6) Option Pricing using Monte Carlo and Black Scholes
 7) Portfolio Optimization using Sharpe Ratio
 
-Future Plans:
-1) Make a jupyter file of inspiration and background
-2) Model Portfolio and calcuate VaR/CVaR for portfolio
+How to run: 
+1) Download the jupyter notebooks or python files.
+2) Run.
+
 
 Ways to improve:
 1) Model with Stochastic Volitility
