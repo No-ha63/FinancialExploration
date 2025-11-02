@@ -7,7 +7,7 @@ import yfinance as yf
 import math as m
 from scipy.stats import norm
 
-month_1_rate = 4.35/100
+month_1_rate = 4.06/100
 compound_rate = np.log(1 + month_1_rate)
 total = 1 * 365
 
