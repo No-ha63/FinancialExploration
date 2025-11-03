@@ -41,12 +41,12 @@ def pricing(results, K, r = compound_rate, years = 1.0, mode = 'call'):
     
 def black_scholes(last_close, sigma, K, r = compound_rate, years = 1.0, mode = 'call'):
     if mode == 'call':
-        d1 = (np.log(last_close/K) + (r + (1/2) * sigma **2) * years) / sigma * np.sqrt(years) 
+        d1 = (np.log(last_close/K) + (r + (1/2) * sigma **2) * years) / (sigma * np.sqrt(years)) 
         d2 = d1 - sigma * np.sqrt(years)
         call_price = last_close * norm.cdf(d1) - norm.cdf(d2) * K * np.exp(-r * years)
         return call_price
     else:
-        d1 = (np.log(last_close/K) + (r + (1/2) * sigma **2) * years) / sigma * np.sqrt(years)
+        d1 = (np.log(last_close/K) + (r + (1/2) * sigma **2) * years) / (sigma * np.sqrt(years))
         d2 = d1 - sigma * np.sqrt(years)
         put_price = norm.cdf(-d2) * K * np.exp(-r * years) - norm.cdf(-d1) * last_close
     return put_price
