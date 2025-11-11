@@ -128,7 +128,7 @@ def max_min_sharpe(weights, expected, vol, r = 4.11/100):
 def sum_one(weights):
     return np.sum(weights) - 1
 
-port = ['MS','MSFT','GOOG']
+port = ['NVDA','MSFT','JNJ']
 data, closes = get_data(port)
 log_changes = df_log_changes(data)
 #results = Port_GBM(data)
